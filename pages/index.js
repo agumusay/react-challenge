@@ -33,7 +33,8 @@ export default function DnDFlow() {
 			const schedule = await schedules.json().then(data => {
 				return data[data.length - 1];
 			});
-			console.log(schedule);
+			const lastInd = +schedule?.elements[schedule.elements.length - 1].id.replace(/\D/g, '');
+			id = lastInd ? lastInd : 0;
 			if (schedule) {
 				const [x = 0, y = 0] = schedule.position;
 				setElements(schedule.elements || []);
@@ -43,6 +44,7 @@ export default function DnDFlow() {
 
 		restoreFlow();
 	}, [setElements]);
+
 	const onSave = useCallback(async () => {
 		if (reactFlowInstance) {
 			const flow = reactFlowInstance.toObject();
@@ -78,6 +80,8 @@ export default function DnDFlow() {
 			id: getId(),
 			type: `${type === 'Start' ? 'input' : type === 'Closing' ? 'output' : 'default'}`,
 			position,
+			sourcePosition: 'right',
+			targetPosition: 'left',
 			data: { label: `${type}` },
 			className: `${
 				type === 'Start'
