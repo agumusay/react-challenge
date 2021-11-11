@@ -1,82 +1,119 @@
-import Head from 'next/head'
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import 'tailwindcss/tailwind.css';
 
-export default function Home() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+import ReactFlow, { ReactFlowProvider, addEdge, removeElements, Controls } from 'react-flow-renderer';
+import Sidebar from './Sidebar';
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+const initialElements = [];
+let id = 0;
+const getId = () => {
+	id++;
+	return 'dndNode' + id;
+};
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
+export default function DnDFlow() {
+	const reactFlowWrapper = useRef(null);
+	const [reactFlowInstance, setReactFlowInstance] = useState(null);
+	const [elements, setElements] = useState(initialElements);
+	const onConnect = params => setElements(els => addEdge(params, els));
+	const onElementsRemove = elementsToRemove => setElements(els => removeElements(elementsToRemove, els));
 
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
+	useEffect(() => {
+		onRestore();
+	}, []);
 
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
+	const onRestore = useCallback(() => {
+		const restoreFlow = async () => {
+			const schedules = await fetch('/api/schedule', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			const schedule = await schedules.json().then(data => {
+				return data[data.length - 1];
+			});
+			console.log(schedule);
+			if (schedule) {
+				const [x = 0, y = 0] = schedule.position;
+				setElements(schedule.elements || []);
+				reactFlowWrapper.current.scrollTo({ x, y });
+			}
+		};
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
+		restoreFlow();
+	}, [setElements]);
+	const onSave = useCallback(async () => {
+		if (reactFlowInstance) {
+			const flow = reactFlowInstance.toObject();
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+			fetch('/api/schedule', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(flow),
+			});
+		}
+	}, [reactFlowInstance]);
 
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
-    </div>
-  )
+	const onLoad = _reactFlowInstance => setReactFlowInstance(_reactFlowInstance);
+
+	const onDragOver = event => {
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'move';
+	};
+
+	const onDrop = event => {
+		event.preventDefault();
+
+		const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+		const type = event.dataTransfer.getData('application/reactflow');
+		const position = reactFlowInstance.project({
+			x: event.clientX - reactFlowBounds.left,
+			y: event.clientY - reactFlowBounds.top,
+		});
+		console.log(getId());
+		const newNode = {
+			id: getId(),
+			type: `${type === 'Start' ? 'input' : type === 'Closing' ? 'output' : 'default'}`,
+			position,
+			data: { label: `${type}` },
+			className: `${
+				type === 'Start'
+					? 'bg-green-500'
+					: type === 'Closing'
+					? 'bg-red-500'
+					: type === 'Speaker'
+					? 'bg-blue-500'
+					: type === 'Q&A'
+					? 'bg-purple-500'
+					: 'bg-gray-500'
+			}`,
+		};
+
+		setElements(es => es.concat(newNode));
+	};
+
+	return (
+		<div className='grid h-screen grid-cols-12 bg-blue-500 w-100 dndflow'>
+			<ReactFlowProvider>
+				<Sidebar />
+				<div className='col-span-9 col-start-4 reactflow-wrapper' ref={reactFlowWrapper}>
+					<button className='h-10 bg-gray-100 w-30' onClick={onSave}>
+						Save
+					</button>
+					<ReactFlow
+						elements={elements}
+						onConnect={onConnect}
+						onElementsRemove={onElementsRemove}
+						onLoad={onLoad}
+						onDrop={onDrop}
+						onDragOver={onDragOver}>
+						<Controls />
+					</ReactFlow>
+				</div>
+			</ReactFlowProvider>
+		</div>
+	);
 }
