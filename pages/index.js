@@ -109,17 +109,20 @@ export default function DnDFlow() {
 			sourcePosition: 'right',
 			targetPosition: 'left',
 			data: { label: `${type}` },
-			className: `${
-				type === 'Start'
-					? 'bg-green-500'
-					: type === 'Closing'
-					? 'bg-red-500'
-					: type === 'Speaker'
-					? 'bg-blue-500'
-					: type === 'Q&A'
-					? 'bg-purple-500'
-					: 'bg-gray-500'
-			}`,
+			style: {
+				width: 80,
+				height: 50,
+				backgroundColor:
+					type === 'Start'
+						? 'rgb(55, 185, 129)'
+						: type === 'Closing'
+						? '#EF4444'
+						: type === 'Speaker'
+						? '#F472B6'
+						: type === 'Q&A'
+						? '#8B5CF6'
+						: '#6B7280',
+			},
 		};
 
 		setElements(es => es.concat(newNode));

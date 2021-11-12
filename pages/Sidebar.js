@@ -16,7 +16,7 @@ export default () => {
 				<span>Start</span>
 			</div>
 			<div
-				className='flex items-center justify-center w-3/4 h-10 m-1 bg-blue-500 dndnode'
+				className='flex items-center justify-center w-3/4 h-10 m-1 bg-pink-500 dndnode'
 				onDragStart={event => onDragStart(event, 'Speaker')}
 				draggable>
 				Speaker
