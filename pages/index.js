@@ -17,7 +17,6 @@ export default function DnDFlow() {
 	const [elements, setElements] = useState(initialElements);
 	const onConnect = params => setElements(els => addEdge(params, els));
 	const onElementsRemove = elementsToRemove => setElements(els => removeElements(elementsToRemove, els));
-	const [clickedElement, setClickedElement] = useState('');
 
 	useEffect(() => {
 		onRestore();
@@ -46,21 +45,28 @@ export default function DnDFlow() {
 		restoreFlow();
 	}, [setElements]);
 
-	const onSave = useCallback(async () => {
-		if (reactFlowInstance) {
-			const flow = reactFlowInstance.toObject();
+	const onSave = useCallback(
+		async e => {
+			e.stopPropagation();
+			console.log('save clicked');
+			if (reactFlowInstance) {
+				const flow = reactFlowInstance.toObject();
 
-			fetch('/api/schedule', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(flow),
-			});
-		}
-	}, [reactFlowInstance]);
+				fetch('/api/schedule', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(flow),
+				});
+			}
+		},
+		[reactFlowInstance]
+	);
 
-	const onReset = async () => {
+	const onReset = async e => {
+		e.stopPropagation();
+		console.log('reset clicked');
 		setElements([]);
 		fetch('/api/schedule', {
 			method: 'DELETE',
@@ -112,6 +118,7 @@ export default function DnDFlow() {
 			style: {
 				width: 80,
 				height: 50,
+
 				backgroundColor:
 					type === 'Start'
 						? 'rgb(55, 185, 129)'
@@ -133,21 +140,22 @@ export default function DnDFlow() {
 			<ReactFlowProvider>
 				<Sidebar />
 				<div className='col-span-9 col-start-4 reactflow-wrapper' ref={reactFlowWrapper}>
-					<button className='h-10 m-2 bg-gray-100 w-30' onClick={onSave}>
+					<button className='z-10 h-10 m-2 bg-gray-100 w-30' onClick={onSave}>
 						Save
 					</button>
-					<button className='h-10 m-2 bg-red-600 w-30' onClick={onReset}>
+					<button className='z-10 h-10 m-2 bg-red-600 w-30' onClick={onReset}>
 						Reset
 					</button>
+
 					<ReactFlow
 						elements={elements}
 						onConnect={onConnect}
 						onElementsRemove={onElementsRemove}
 						onLoad={onLoad}
 						onDrop={onDrop}
-						onDragOver={onDragOver}>
-						<Controls />
-					</ReactFlow>
+						onDragOver={onDragOver}
+						snapToGrid={true}
+						snapGrid={[15, 15]}></ReactFlow>
 				</div>
 			</ReactFlowProvider>
 		</div>
