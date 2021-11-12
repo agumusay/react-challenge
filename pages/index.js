@@ -17,6 +17,7 @@ export default function DnDFlow() {
 	const [elements, setElements] = useState(initialElements);
 	const onConnect = params => setElements(els => addEdge(params, els));
 	const onElementsRemove = elementsToRemove => setElements(els => removeElements(elementsToRemove, els));
+	const [clickedElement, setClickedElement] = useState('');
 
 	useEffect(() => {
 		onRestore();
@@ -58,6 +59,31 @@ export default function DnDFlow() {
 			});
 		}
 	}, [reactFlowInstance]);
+
+	const onReset = async () => {
+		setElements([]);
+		fetch('/api/schedule', {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+	};
+	// const onClickElement = useCallback((event, element) => {
+	// 	// Set the clicked element in local state
+	// 	setClickedElement({
+	// 		clickedElement: [element],
+	// 	});
+	// }, []);
+
+	// const onClickElementDelete = useCallback(() => {
+	// 	// Get all edges for the flow
+	// 	const edges = elements.filter(element => isEdge(element));
+	// 	// Get edges connected to selected node
+	// 	const edgesToRemove = getConnectedEdges(clickedElement.clickedElement, edges);
+
+	// 	onElementsRemove([...clickedElement.clickedElement, ...edgesToRemove]);
+	// }, [elements, onElementsRemove, clickedElement.clickedElement]);
 
 	const onLoad = _reactFlowInstance => setReactFlowInstance(_reactFlowInstance);
 
@@ -104,8 +130,11 @@ export default function DnDFlow() {
 			<ReactFlowProvider>
 				<Sidebar />
 				<div className='col-span-9 col-start-4 reactflow-wrapper' ref={reactFlowWrapper}>
-					<button className='h-10 bg-gray-100 w-30' onClick={onSave}>
+					<button className='h-10 m-2 bg-gray-100 w-30' onClick={onSave}>
 						Save
+					</button>
+					<button className='h-10 m-2 bg-red-600 w-30' onClick={onReset}>
+						Reset
 					</button>
 					<ReactFlow
 						elements={elements}

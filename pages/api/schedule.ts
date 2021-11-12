@@ -34,6 +34,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			return res.status(405).send(error.message);
 		}
 	}
+
+	if (req.method === 'DELETE') {
+		let ScheduleRemoved = await Schedule.deleteMany({});
+		return res.status(200).send(ScheduleRemoved);
+	}
 };
 
 export default connectDb(handler);
