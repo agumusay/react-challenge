@@ -4,6 +4,7 @@ import 'tailwindcss/tailwind.css';
 import ReactFlow, { ReactFlowProvider, addEdge, removeElements, Controls } from 'react-flow-renderer';
 import Sidebar from './Sidebar';
 
+import { nodeTypes } from '../components/Nodes';
 const initialElements = [];
 let id = 0;
 const getId = () => {
@@ -17,10 +18,15 @@ export default function DnDFlow() {
 	const [elements, setElements] = useState(initialElements);
 	const onConnect = params => setElements(els => addEdge(params, els));
 	const onElementsRemove = elementsToRemove => setElements(els => removeElements(elementsToRemove, els));
+	const [speakerIndex, setSpeakerIndex] = useState(0);
 
 	useEffect(() => {
 		onRestore();
 	}, []);
+
+	useEffect(() => {
+		setSpeakerIndex(elements.filter(el => el.type === 'speaker').length);
+	}, [elements]);
 
 	const onRestore = useCallback(() => {
 		const restoreFlow = async () => {
@@ -100,7 +106,6 @@ export default function DnDFlow() {
 
 	const onDrop = event => {
 		event.preventDefault();
-
 		const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
 		const type = event.dataTransfer.getData('application/reactflow');
 		const position = reactFlowInstance.project({
@@ -110,33 +115,28 @@ export default function DnDFlow() {
 		console.log(getId());
 		const newNode = {
 			id: getId(),
-			type: `${type === 'Start' ? 'input' : type === 'Closing' ? 'output' : 'default'}`,
+			type: `${
+				type === 'Start'
+					? 'start'
+					: type === 'Stop'
+					? 'stop'
+					: type === 'Pause'
+					? 'pause'
+					: type === 'Q&A'
+					? 'qna'
+					: 'speaker'
+			}`,
 			position,
 			sourcePosition: 'right',
 			targetPosition: 'left',
-			data: { label: `${type}` },
-			style: {
-				width: 80,
-				height: 50,
-
-				backgroundColor:
-					type === 'Start'
-						? 'rgb(55, 185, 129)'
-						: type === 'Closing'
-						? '#EF4444'
-						: type === 'Speaker'
-						? '#F472B6'
-						: type === 'Q&A'
-						? '#8B5CF6'
-						: '#6B7280',
-			},
+			data: { label: `${type}`, speakerIndex },
 		};
 
 		setElements(es => es.concat(newNode));
 	};
 
 	return (
-		<div className='grid h-screen grid-cols-12 bg-blue-500 w-100 dndflow'>
+		<div className='grid h-screen grid-cols-12 bg-gray-300 w-100 dndflow'>
 			<ReactFlowProvider>
 				<Sidebar />
 				<div className='col-span-9 col-start-4 reactflow-wrapper' ref={reactFlowWrapper}>
@@ -151,6 +151,7 @@ export default function DnDFlow() {
 						elements={elements}
 						onConnect={onConnect}
 						onElementsRemove={onElementsRemove}
+						nodeTypes={nodeTypes}
 						onLoad={onLoad}
 						onDrop={onDrop}
 						onDragOver={onDragOver}
