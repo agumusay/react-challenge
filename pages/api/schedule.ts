@@ -4,8 +4,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import connectDb from '../../middleware/mongodb';
 import { Schedule } from '../../models/scheduleModel';
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-	console.log('request done');
-
 	if (req.method === 'POST') {
 		const { elements, position, zoom } = await req.body;
 

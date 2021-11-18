@@ -26,7 +26,6 @@ export default function DnDFlow() {
 	useEffect(() => {
 		const remains = elements.filter(el => el.id !== 'dndNode' + removeId);
 		setElements(remains);
-		console.log(elements, removeId);
 	}, [removeId]);
 
 	useEffect(() => {
@@ -34,7 +33,6 @@ export default function DnDFlow() {
 	}, []);
 
 	useEffect(() => {
-		console.log(removeId);
 		setSpeakerIndex(elements.filter(el => el.type === 'speaker').length);
 	}, [elements]);
 
@@ -53,7 +51,12 @@ export default function DnDFlow() {
 			id = lastInd ? lastInd : 0;
 			if (schedule) {
 				const [x = 0, y = 0] = schedule.position;
-				setElements(schedule.elements || []);
+				const schedulesWithDel = schedule.elements.map(el => {
+					const dataWithFn = { ...el.data, onDelete };
+					return { ...el, data: dataWithFn };
+				});
+
+				setElements(schedulesWithDel || []);
 				reactFlowWrapper.current.scrollTo({ x, y });
 			}
 		};
@@ -64,10 +67,8 @@ export default function DnDFlow() {
 	const onSave = useCallback(
 		async e => {
 			e.stopPropagation();
-			console.log('save clicked');
 			if (reactFlowInstance) {
 				const flow = reactFlowInstance.toObject();
-
 				fetch('/api/schedule', {
 					method: 'POST',
 					headers: {
@@ -82,7 +83,6 @@ export default function DnDFlow() {
 
 	const onReset = async e => {
 		e.stopPropagation();
-		console.log('reset clicked');
 		setElements([]);
 		fetch('/api/schedule', {
 			method: 'DELETE',
@@ -92,7 +92,6 @@ export default function DnDFlow() {
 		});
 	};
 	const onDelete = node => {
-		console.log(node.id);
 		setRemoveId(node.id);
 	};
 
@@ -127,7 +126,6 @@ export default function DnDFlow() {
 			x: event.clientX - reactFlowBounds.left,
 			y: event.clientY - reactFlowBounds.top,
 		});
-		console.log(getId());
 		const newNode = {
 			id: getId(),
 			type: `${

@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "json-fn": "^1.1.1",
     "mongoose": "^6.0.12",
     "next": "latest",
     "react": "^17.0.2",
