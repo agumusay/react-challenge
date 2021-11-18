@@ -46,7 +46,6 @@ const PauseNode = ({ data }) => {
 };
 
 const SpeakerNode = ({ data }) => {
-	console.log(data.speakerIndex);
 	return (
 		<div style={nodeStyles}>
 			<FaMicrophoneAlt style={{ fontSize: '2rem', marginRight: '0.5rem' }} />

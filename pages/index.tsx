@@ -5,6 +5,7 @@ import ReactFlow, { ReactFlowProvider, addEdge, removeElements, Controls } from 
 import Sidebar from './Sidebar';
 
 import { nodeTypes } from '../components/Nodes';
+import { FaTrash, FaSave } from 'react-icons/fa';
 const initialElements = [];
 let id = 0;
 const getId = () => {
@@ -140,11 +141,43 @@ export default function DnDFlow() {
 			<ReactFlowProvider>
 				<Sidebar />
 				<div className='col-span-9 col-start-4 reactflow-wrapper' ref={reactFlowWrapper}>
-					<button className='z-10 h-10 m-2 bg-gray-100 w-30' onClick={onSave}>
-						Save
+					<button
+						className='z-10 h-10 m-2 w-30'
+						onClick={onSave}
+						style={{
+							borderRadius: '100%',
+							boxShadow: '2px 2px 5px 3px rgba(0,0,0,0.3), -2px -2px 5px 3px rgba(255,255,255,0.3)',
+							width: '60px',
+							height: '60px',
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							color: 'white',
+							fontWeight: 'bold',
+							textShadow: '0 1px 1px rgba(0,0,0,.3)',
+							border: 'solid 1px #074b93',
+							background: 'linear-gradient(180deg, #0053ad, #00336b)',
+						}}>
+						<FaSave style={{ fontSize: '2rem' }} />
 					</button>
-					<button className='z-10 h-10 m-2 bg-red-600 w-30' onClick={onReset}>
-						Reset
+					<button
+						className='z-10 h-10 m-2 w-30'
+						onClick={onReset}
+						style={{
+							borderRadius: '100%',
+							boxShadow: '2px 2px 5px 3px rgba(0,0,0,0.3), -2px -2px 5px 3px rgba(255,255,255,0.3)',
+							width: '60px',
+							height: '60px',
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							color: 'white',
+							fontWeight: 'bold',
+							textShadow: '0 1px 1px rgba(0,0,0,.3)',
+							border: 'solid 1px #074b93',
+							background: 'linear-gradient(180deg, #0053ad, #00336b)',
+						}}>
+						<FaTrash style={{ fontSize: '2rem' }} />
 					</button>
 
 					<ReactFlow
