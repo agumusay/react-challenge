@@ -1,6 +1,6 @@
 import React from 'react';
-import { Handle } from 'react-flow-renderer';
-import { FaPlay, FaStop, FaPause, FaMicrophoneAlt } from 'react-icons/fa';
+import { Handle, ControlButton } from 'react-flow-renderer';
+import { FaPlay, FaStop, FaPause, FaMicrophoneAlt, FaTimes } from 'react-icons/fa';
 import { MdQuestionAnswer } from 'react-icons/md';
 
 const nodeStyles = {
@@ -16,11 +16,32 @@ const nodeStyles = {
 	textShadow: '0 1px 1px rgba(0,0,0,.3)',
 	border: 'solid 1px #074b93',
 	background: 'linear-gradient(180deg, #0053ad, #00336b)',
+	position: 'relative',
+};
+
+const buttonStyles = {
+	position: 'absolute',
+	top: '-3px',
+	right: '-3px',
+	background: 'red',
+	borderRadius: '50%',
+	width: '20px',
+	height: '20px',
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
 };
 
 const StartNode = ({ data }) => {
 	return (
 		<div style={nodeStyles}>
+			<button style={buttonStyles} onClick={() => data.onDelete(data)}>
+				<FaTimes
+					style={{
+						fontSize: '1rem',
+					}}
+				/>
+			</button>
 			<FaPlay style={{ fontSize: '2rem', marginRight: '0.5rem' }} />
 			<span>Start</span>
 		</div>
@@ -30,6 +51,13 @@ const StartNode = ({ data }) => {
 const StopNode = ({ data }) => {
 	return (
 		<div style={nodeStyles}>
+			<button style={buttonStyles} onClick={() => data.onDelete(data)}>
+				<FaTimes
+					style={{
+						fontSize: '1rem',
+					}}
+				/>
+			</button>
 			<FaStop style={{ fontSize: '2rem', marginRight: '0.5rem' }} />
 			<span>Stop</span>
 		</div>
@@ -39,6 +67,13 @@ const StopNode = ({ data }) => {
 const PauseNode = ({ data }) => {
 	return (
 		<div style={nodeStyles}>
+			<button style={buttonStyles} onClick={() => data.onDelete(data)}>
+				<FaTimes
+					style={{
+						fontSize: '1rem',
+					}}
+				/>
+			</button>
 			<FaPause style={{ fontSize: '2rem', marginRight: '0.5rem' }} />
 			<span>Pause</span>
 		</div>
@@ -48,6 +83,13 @@ const PauseNode = ({ data }) => {
 const SpeakerNode = ({ data }) => {
 	return (
 		<div style={nodeStyles}>
+			<button style={buttonStyles} onClick={() => data.onDelete(data)}>
+				<FaTimes
+					style={{
+						fontSize: '1rem',
+					}}
+				/>
+			</button>
 			<FaMicrophoneAlt style={{ fontSize: '2rem', marginRight: '0.5rem' }} />
 			<span>Speaker {data.speakerIndex + 1}</span>
 		</div>
@@ -57,6 +99,13 @@ const SpeakerNode = ({ data }) => {
 const QnANode = ({ data }) => {
 	return (
 		<div style={nodeStyles}>
+			<button style={buttonStyles} onClick={() => data.onDelete(data)}>
+				<FaTimes
+					style={{
+						fontSize: '1rem',
+					}}
+				/>
+			</button>
 			<MdQuestionAnswer style={{ fontSize: '2rem', marginRight: '0.5rem' }} />
 			<span>Q&A</span>
 		</div>

@@ -6,6 +6,7 @@ import Sidebar from './Sidebar';
 
 import { nodeTypes } from '../components/Nodes';
 import { FaTrash, FaSave } from 'react-icons/fa';
+import { set } from 'mongoose';
 const initialElements = [];
 let id = 0;
 const getId = () => {
@@ -20,12 +21,20 @@ export default function DnDFlow() {
 	const onConnect = params => setElements(els => addEdge(params, els));
 	const onElementsRemove = elementsToRemove => setElements(els => removeElements(elementsToRemove, els));
 	const [speakerIndex, setSpeakerIndex] = useState(0);
+	const [removeId, setRemoveId] = useState(null);
+
+	useEffect(() => {
+		const remains = elements.filter(el => el.id !== 'dndNode' + removeId);
+		setElements(remains);
+		console.log(elements, removeId);
+	}, [removeId]);
 
 	useEffect(() => {
 		onRestore();
 	}, []);
 
 	useEffect(() => {
+		console.log(removeId);
 		setSpeakerIndex(elements.filter(el => el.type === 'speaker').length);
 	}, [elements]);
 
@@ -82,6 +91,11 @@ export default function DnDFlow() {
 			},
 		});
 	};
+	const onDelete = node => {
+		console.log(node.id);
+		setRemoveId(node.id);
+	};
+
 	// const onClickElement = useCallback((event, element) => {
 	// 	// Set the clicked element in local state
 	// 	setClickedElement({
@@ -130,7 +144,7 @@ export default function DnDFlow() {
 			position,
 			sourcePosition: 'right',
 			targetPosition: 'left',
-			data: { label: `${type}`, speakerIndex },
+			data: { id, label: `${type}`, speakerIndex, onDelete },
 		};
 
 		setElements(es => es.concat(newNode));
