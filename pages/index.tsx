@@ -6,7 +6,6 @@ import Sidebar from './Sidebar';
 
 import { nodeTypes } from '../components/Nodes';
 import { FaTrash, FaSave } from 'react-icons/fa';
-import { set } from 'mongoose';
 const initialElements = [];
 let id = 0;
 const getId = () => {
@@ -34,7 +33,9 @@ export default function DnDFlow() {
 
 	useEffect(() => {
 		setSpeakerIndex(elements.filter(el => el.type === 'speaker').length);
-	}, [elements]);
+		onUpdate(elements);
+		console.log('elements', elements);
+	}, [elements, reactFlowWrapper.current]);
 
 	const onRestore = useCallback(() => {
 		const restoreFlow = async () => {
@@ -47,9 +48,9 @@ export default function DnDFlow() {
 			const schedule = await schedules.json().then(data => {
 				return data[data.length - 1];
 			});
-			const lastInd = +schedule?.elements[schedule.elements.length - 1].id.replace(/\D/g, '');
-			id = lastInd ? lastInd : 0;
 			if (schedule) {
+				const lastInd = await +schedule?.elements[schedule.elements.length - 1]?.id.replace(/\D/g, '');
+				id = lastInd ? lastInd : 0;
 				const [x = 0, y = 0] = schedule.position;
 				const schedulesWithDel = schedule.elements.map(el => {
 					const dataWithFn = { ...el.data, onDelete };
@@ -95,21 +96,15 @@ export default function DnDFlow() {
 		setRemoveId(node.id);
 	};
 
-	// const onClickElement = useCallback((event, element) => {
-	// 	// Set the clicked element in local state
-	// 	setClickedElement({
-	// 		clickedElement: [element],
-	// 	});
-	// }, []);
-
-	// const onClickElementDelete = useCallback(() => {
-	// 	// Get all edges for the flow
-	// 	const edges = elements.filter(element => isEdge(element));
-	// 	// Get edges connected to selected node
-	// 	const edgesToRemove = getConnectedEdges(clickedElement.clickedElement, edges);
-
-	// 	onElementsRemove([...clickedElement.clickedElement, ...edgesToRemove]);
-	// }, [elements, onElementsRemove, clickedElement.clickedElement]);
+	const onUpdate = elements => {
+		fetch('/api/schedule', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(elements),
+		});
+	};
 
 	const onLoad = _reactFlowInstance => setReactFlowInstance(_reactFlowInstance);
 

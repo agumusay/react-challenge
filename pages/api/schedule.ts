@@ -20,8 +20,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			} catch (error) {
 				return res.status(405).send(error.message);
 			}
-		} else {
-			res.status(422).send('Bad request');
 		}
 	}
 	if (req.method === 'GET') {
@@ -36,6 +34,20 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	if (req.method === 'DELETE') {
 		let ScheduleRemoved = await Schedule.deleteMany({});
 		return res.status(200).send(ScheduleRemoved);
+	}
+
+	if (req.method === 'PUT') {
+		const foundSchedule = await Schedule.findOne({})
+			.sort({ _id: -1 })
+			.limit(1)
+			.then(schedule => {
+				if (schedule) {
+					schedule.elements = req.body;
+					schedule.save();
+				}
+			});
+
+		return res.status(200).send(foundSchedule);
 	}
 };
 
